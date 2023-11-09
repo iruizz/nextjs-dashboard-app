@@ -22,8 +22,25 @@ export async function fetchRevenue() {
 
     console.log('Fetching revenue data...');
     await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    const data = await sql<Revenue>`SELECT * FROM revenue`;
+    //original query was only SELCT * FROM revenue, modified it since database table is not sorted correctly.
+    const data = await sql<Revenue>`SELECT *
+    FROM revenue
+    ORDER BY
+      CASE
+        WHEN month = 'Jan' THEN 1
+        WHEN month = 'Feb' THEN 2
+        WHEN month = 'Mar' THEN 3
+        WHEN month = 'Apr' THEN 4
+        WHEN month = 'May' THEN 5
+        WHEN month = 'Jun' THEN 6
+        WHEN month = 'Jul' THEN 7
+        WHEN month = 'Aug' THEN 8
+        WHEN month = 'Sep' THEN 9
+        WHEN month = 'Oct' THEN 10
+        WHEN month = 'Nov' THEN 11
+        WHEN month = 'Dec' THEN 12
+      END;`;
+    
 
     console.log('Data fetch complete after 3 seconds.');
 
@@ -169,10 +186,12 @@ export async function fetchInvoiceById(id: string) {
       // Convert amount from cents to dollars
       amount: invoice.amount / 100,
     }));
-
+    
+    console.log(invoice);
     return invoice[0];
   } catch (error) {
     console.error('Database Error:', error);
+    throw new Error('Failed to fetch invoice.');
   }
 }
 
